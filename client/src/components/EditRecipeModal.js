@@ -8,7 +8,9 @@ import {
   RadioGroup,
   Input,
   Typography,
+  IconButton,
 } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 
 const EditRecipeModal = ({ open, handleClose, recipe, handleUpdate }) => {
   const [recipeName, setRecipeName] = useState("");
@@ -16,6 +18,7 @@ const EditRecipeModal = ({ open, handleClose, recipe, handleUpdate }) => {
   const [instructions, setInstructions] = useState("");
   const [difficulty, setDifficulty] = useState("Easy");
   const [recipeImage, setRecipeImage] = useState("");
+  const [fileInputState, setFileInputState] = useState('');
 
   useEffect(() => {
     if (recipe) {
@@ -23,25 +26,32 @@ const EditRecipeModal = ({ open, handleClose, recipe, handleUpdate }) => {
       setIngredients(recipe.ingredients.join(", "));
       setInstructions(recipe.instructions);
       setDifficulty(recipe.difficulty);
-      setRecipeImage(recipe.recipeImage);
+      setRecipeImage(`data:image/png;base64,${recipe.recipeImage}`);
     }
   }, [recipe]);
 
   const handleImageChange = (e) => {
-    setRecipeImage(URL.createObjectURL(e.target.files[0]));
+    const file = e.target.files[0];
+    setRecipeImage(URL.createObjectURL(file));
+    setFileInputState(file);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    handleUpdate({
-      recipeName,
-      ingredients: ingredients
-        .split(",")
-        .map((ingredient) => ingredient.trim()),
-      instructions,
-      difficulty,
-      recipeImage,
-    });
+
+    const formData = new FormData();
+    formData.append('recipeName', recipeName);
+    formData.append('ingredients', ingredients.split(',').map(ingredient => ingredient.trim()).join(','));
+    formData.append('instructions', instructions);
+    formData.append('difficulty', difficulty);
+    if (fileInputState) {
+      formData.append('recipeImage', fileInputState);
+    } else {
+      formData.append('recipeImage', recipe.recipeImage);
+    }
+    
+    
+    handleUpdate(formData);
     handleClose();
   };
 
@@ -50,12 +60,28 @@ const EditRecipeModal = ({ open, handleClose, recipe, handleUpdate }) => {
       <div
         style={{
           margin: "10%",
-          backgroundColor: "#777777", // Set the background color to a darker grey
+          backgroundColor: "#777777",
           padding: "20px",
           overflowY: "auto",
-          maxHeight: "80vh", // Set a fixed height for the modal content
+          maxHeight: "80vh",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          position: "relative",
         }}
       >
+        <IconButton
+          onClick={handleClose}
+          style={{
+            color: "#DDDDDD",
+            position: "absolute",
+            top: "10px",
+            right: "10px",
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+
         <form
           onSubmit={handleSubmit}
           style={{

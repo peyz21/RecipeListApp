@@ -13,4 +13,5 @@ const SearchBar = ({ handleSearch }) => {
   );
 };
 
+
 export default SearchBar;

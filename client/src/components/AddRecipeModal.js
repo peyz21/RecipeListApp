@@ -1,4 +1,3 @@
-// AddRecipeModal.js
 import React, { useState } from "react";
 import {
   Button,
@@ -9,7 +8,9 @@ import {
   RadioGroup,
   Input,
   Typography,
+  IconButton,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
 const AddRecipeModal = ({ handleCloseModal, handleAddRecipe }) => {
   const [recipeName, setRecipeName] = useState("");
@@ -19,19 +20,26 @@ const AddRecipeModal = ({ handleCloseModal, handleAddRecipe }) => {
   const [recipeImage, setRecipeImage] = useState(null);
 
   const handleImageChange = (e) => {
-    setRecipeImage(URL.createObjectURL(e.target.files[0]));
+    const file = e.target.files[0];
+    setRecipeImage(file);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    handleAddRecipe({
+
+    const newRecipe = {
       recipeName,
-      ingredients: ingredients.split(',').map(ingredient => ingredient.trim()),
+      ingredients: ingredients
+        .split(",")
+        .map((ingredient) => ingredient.trim())
+        .join(","),
       instructions,
       difficulty,
       recipeImage,
-      lastModified: new Date() // Add timestamp here
-    });
+    };
+
+    handleAddRecipe(newRecipe);
+
     setRecipeName("");
     setIngredients("");
     setInstructions("");
@@ -44,12 +52,28 @@ const AddRecipeModal = ({ handleCloseModal, handleAddRecipe }) => {
       <div
         style={{
           margin: "10%",
-          backgroundColor: "#777777", // Set the background color to a darker grey
+          backgroundColor: "#777777",
           padding: "20px",
           overflowY: "auto",
-          maxHeight: "80vh", // Set a fixed height for the modal content
+          maxHeight: "80vh",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          position: "relative",
         }}
       >
+        <IconButton
+          onClick={handleCloseModal}
+          style={{
+            color: "#DDDDDD",
+            position: "absolute",
+            top: "10px",
+            right: "10px",
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+
         <form
           onSubmit={handleSubmit}
           style={{
@@ -58,7 +82,10 @@ const AddRecipeModal = ({ handleCloseModal, handleAddRecipe }) => {
             alignItems: "center",
           }}
         >
-          <Typography variant="h5" style={{ color: "#DDDDDD", marginBottom: "20px" }}>
+          <Typography
+            variant="h5"
+            style={{ color: "#DDDDDD", marginBottom: "20px" }}
+          >
             Add Recipe
           </Typography>
           <Typography variant="h6" style={{ color: "#DDDDDD" }}>
@@ -77,13 +104,16 @@ const AddRecipeModal = ({ handleCloseModal, handleAddRecipe }) => {
             />
             <FormControlLabel value="Hard" control={<Radio />} label="Hard" />
           </RadioGroup>
-          <Typography variant="h6" style={{ color: "#DDDDDD", marginTop: "20px" }}>
+          <Typography
+            variant="h6"
+            style={{ color: "#DDDDDD", marginTop: "20px" }}
+          >
             Upload Image
           </Typography>
           <Input type="file" onChange={handleImageChange} />
           {recipeImage && (
             <img
-              src={recipeImage}
+              src={URL.createObjectURL(recipeImage)}
               alt="recipe preview"
               style={{
                 width: "80%",
