@@ -16,7 +16,7 @@ app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 const connectDB = async () => {
   try {
     await mongoose.connect(
-      "mongodb+srv://peyz21:qwert12345@recipedb.1yr5yi7.mongodb.net/",
+      "mongodb+srv://peyz21:qwert12345@recipedb.1yr5yi7.mongodb.net/recipedb?retryWrites=true&w=majority",
       {
         useNewUrlParser: true,
         useUnifiedTopology: true,
