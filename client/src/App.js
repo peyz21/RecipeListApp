@@ -26,7 +26,7 @@ const App = () => {
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        const response = await axios.get("http://localhost:3002/recipes");
+        const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}/recipes`);
         setRecipes(response.data);
       } catch (error) {
         console.error("Error fetching recipes:", error);
@@ -44,7 +44,7 @@ const App = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3002/recipes",
+        `${process.env.REACT_APP_SERVER_URL}/recipes`,
         formData
       );
       setRecipes((prevRecipes) => [...prevRecipes, response.data]);
@@ -65,7 +65,7 @@ const App = () => {
     try {
       
       const response = await axios.put(
-        `http://localhost:3002/recipes/${currentRecipe._id}`,
+        `${process.env.REACT_APP_SERVER_URL}/recipes/${currentRecipe._id}`,
         formData
       );
       
@@ -83,7 +83,7 @@ const App = () => {
 
   const handleDeleteRecipe = async () => {
     try {
-      await axios.delete(`http://localhost:3002/recipes/${currentRecipe._id}`);
+      await axios.delete(`${process.env.REACT_APP_SERVER_URL}/recipes/${currentRecipe._id}`);
       setRecipes((prevRecipes) =>
         prevRecipes.filter((recipe) => recipe._id !== currentRecipe._id)
       );
