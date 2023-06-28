@@ -121,7 +121,7 @@ app.delete("/recipes/:id", async (req, res) => {
     res.status(500).send({ message: error.message });
   }
 });
-
-app.listen(3002, () => {
+const port = process.env.PORT || 3002;
+app.listen(port, () => {
   console.log("Server is running on port 3002");
 });
