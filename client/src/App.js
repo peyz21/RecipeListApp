@@ -134,15 +134,20 @@ const App = () => {
       await axios.delete(
         `${process.env.REACT_APP_SERVER_URL}/recipes/${currentRecipe._id}`
       );
+      // Remove the recipe from state
       setRecipes((prevRecipes) =>
         prevRecipes.filter((recipe) => recipe._id !== currentRecipe._id)
       );
-      setPage(1); // Reset the page number after a deletion.
+      // Reset the page number to 1
+      setPage(1); 
+      // Clear the recipes state
+      setRecipes([]); 
       setShowRecipeModal(false);
     } catch (error) {
       console.error("Error deleting recipe:", error);
     }
   };
+  
 
   const handleSearch = (searchText) => {
     setFilter(searchText);
