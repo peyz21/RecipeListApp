@@ -10,8 +10,8 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 app.use(cors()); // Enable CORS
-app.use(bodyParser.json({ limit: "50mb" }));
-app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 const connectDB = async () => {
   try {
@@ -44,14 +44,27 @@ const recipeSchema = new mongoose.Schema(
 
 const Recipe = mongoose.model("Recipe", recipeSchema);
 
+// app.get("/recipes", async (req, res) => {
+//   try {
+//     const recipes = await Recipe.find();
+//     res.json(recipes);
+//   } catch (error) {
+//     res.status(500).send({ message: error.message });
+//   }
+// });
+
 app.get("/recipes", async (req, res) => {
   try {
-    const recipes = await Recipe.find();
+    const skip = Number(req.query.skip) || 0;
+    const limit = Number(req.query.limit) || 100; // Set a default limit if not provided
+
+    const recipes = await Recipe.find().skip(skip).limit(limit);
     res.json(recipes);
   } catch (error) {
     res.status(500).send({ message: error.message });
   }
 });
+
 
 app.post("/recipes", upload.single("recipeImage"), async (req, res) => {
   try {
@@ -60,7 +73,9 @@ app.post("/recipes", upload.single("recipeImage"), async (req, res) => {
       req.body.recipeImage = image;
     }
 
-    req.body.ingredients = req.body.ingredients.split(",");
+    if (typeof req.body.ingredients === 'string') {
+      req.body.ingredients = req.body.ingredients.split(",");
+    }
 
     const newRecipe = new Recipe(req.body);
     const savedRecipe = await newRecipe.save();
@@ -92,6 +107,10 @@ app.put("/recipes/:id", upload.single("recipeImage"), async (req, res) => {
     if (req.file) {
       const image = Buffer.from(req.file.buffer).toString("base64");
       updatedData.recipeImage = image;
+    }
+
+    if (typeof updatedData.ingredients === 'string') {
+      updatedData.ingredients = updatedData.ingredients.split(",");
     }
 
     // Update the recipe data
