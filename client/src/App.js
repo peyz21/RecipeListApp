@@ -25,17 +25,18 @@ const App = () => {
   const [loading, setLoading] = useState(false);
   const [cancelTokenSource, setCancelTokenSource] = useState(
     axios.CancelToken.source()
-  );
+  ); // Add this line
   const [page, setPage] = useState(1);
   const bottomBoundaryRef = useRef(null);
   const limit = 100;
-  const fetchRecipesRef = useRef(null);
 
   useEffect(() => {
     const fetchRecipes = async () => {
       setLoading(true);
       try {
+        // Cancel the previous request
         cancelTokenSource.cancel();
+        // Create a new CancelToken
         const newCancelTokenSource = axios.CancelToken.source();
         setCancelTokenSource(newCancelTokenSource);
 
@@ -46,7 +47,7 @@ const App = () => {
           { cancelToken: newCancelTokenSource.token }
         );
 
-        setRecipes(response.data); // set the new data instead of appending
+        setRecipes((prevRecipes) => [...prevRecipes, ...response.data]);
         setLoading(false);
       } catch (error) {
         if (axios.isCancel(error)) {
@@ -57,8 +58,6 @@ const App = () => {
         }
       }
     };
-
-    fetchRecipesRef.current = fetchRecipes;
     fetchRecipes();
   }, [page, filter]);
 
@@ -135,14 +134,10 @@ const App = () => {
       await axios.delete(
         `${process.env.REACT_APP_SERVER_URL}/recipes/${currentRecipe._id}`
       );
-
       setRecipes((prevRecipes) =>
         prevRecipes.filter((recipe) => recipe._id !== currentRecipe._id)
       );
-
-      // Reset page to 1 before fetching recipes
-      setPage(1);
-      fetchRecipesRef.current();
+      setPage(1); // Reset the page number after a deletion.
       setShowRecipeModal(false);
     } catch (error) {
       console.error("Error deleting recipe:", error);
@@ -154,6 +149,10 @@ const App = () => {
     setPage(1); // Reset the page number when a new search query is entered.
     setRecipes([]); // Clear the recipes when a new search query is entered.
   };
+
+  // const filteredRecipes = recipes.filter((recipe) =>
+  //   recipe.recipeName.toLowerCase().includes(filter.toLowerCase())
+  // );
 
   return (
     <ThemeProvider theme={theme}>
