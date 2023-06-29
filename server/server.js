@@ -44,21 +44,19 @@ const recipeSchema = new mongoose.Schema(
 
 const Recipe = mongoose.model("Recipe", recipeSchema);
 
-// app.get("/recipes", async (req, res) => {
-//   try {
-//     const recipes = await Recipe.find();
-//     res.json(recipes);
-//   } catch (error) {
-//     res.status(500).send({ message: error.message });
-//   }
-// });
 
 app.get("/recipes", async (req, res) => {
   try {
     const skip = Number(req.query.skip) || 0;
-    const limit = Number(req.query.limit) || 100; // Set a default limit if not provided
+    const limit = Number(req.query.limit) || 100;
+    const search = req.query.search || "";
 
-    const recipes = await Recipe.find().skip(skip).limit(limit);
+    const recipes = await Recipe.find({
+      recipeName: { $regex: new RegExp(search, "i") },
+    })
+      .skip(skip)
+      .limit(limit);
+
     res.json(recipes);
   } catch (error) {
     res.status(500).send({ message: error.message });

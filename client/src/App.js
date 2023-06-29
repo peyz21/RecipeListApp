@@ -23,26 +23,42 @@ const App = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [currentRecipe, setCurrentRecipe] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [cancelTokenSource, setCancelTokenSource] = useState(
+    axios.CancelToken.source()
+  );
   const [page, setPage] = useState(1);
   const bottomBoundaryRef = useRef(null);
   const limit = 100;
+  const fetchRecipesRef = useRef(null);
 
   useEffect(() => {
     const fetchRecipes = async () => {
       setLoading(true);
       try {
+        cancelTokenSource.cancel();
+        const newCancelTokenSource = axios.CancelToken.source();
+        setCancelTokenSource(newCancelTokenSource);
+
         const response = await axios.get(
           `${process.env.REACT_APP_SERVER_URL}/recipes?skip=${
             (page - 1) * limit
-          }&limit=${limit}`
+          }&limit=${limit}&search=${filter}`,
+          { cancelToken: newCancelTokenSource.token }
         );
-        setRecipes((prevRecipes) => [...prevRecipes, ...response.data]);
+
+        setRecipes(response.data); // set the new data instead of appending
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching recipes:", error);
-        setLoading(false);
+        if (axios.isCancel(error)) {
+          console.log("Request cancelled");
+        } else {
+          console.error("Error fetching recipes:", error);
+          setLoading(false);
+        }
       }
     };
+
+    fetchRecipesRef.current = fetchRecipes;
     fetchRecipes();
   }, [page, filter]);
 
@@ -119,10 +135,14 @@ const App = () => {
       await axios.delete(
         `${process.env.REACT_APP_SERVER_URL}/recipes/${currentRecipe._id}`
       );
+
       setRecipes((prevRecipes) =>
         prevRecipes.filter((recipe) => recipe._id !== currentRecipe._id)
       );
-      setPage(1); // Reset the page number after a deletion.
+
+      // Reset page to 1 before fetching recipes
+      setPage(1);
+      fetchRecipesRef.current();
       setShowRecipeModal(false);
     } catch (error) {
       console.error("Error deleting recipe:", error);
@@ -132,11 +152,8 @@ const App = () => {
   const handleSearch = (searchText) => {
     setFilter(searchText);
     setPage(1); // Reset the page number when a new search query is entered.
+    setRecipes([]); // Clear the recipes when a new search query is entered.
   };
-
-  const filteredRecipes = recipes.filter((recipe) =>
-    recipe.recipeName.toLowerCase().includes(filter.toLowerCase())
-  );
 
   return (
     <ThemeProvider theme={theme}>
@@ -173,7 +190,7 @@ const App = () => {
           <SearchBar handleSearch={handleSearch} />
         </Box>
         <Grid container spacing={3} style={{ marginTop: "20px" }}>
-          {filteredRecipes.map((recipe, index) => (
+          {recipes.map((recipe, index) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
               <RecipeCard
                 recipe={recipe}
