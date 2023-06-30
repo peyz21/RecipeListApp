@@ -7,11 +7,13 @@ import SearchBar from "./components/SearchBar";
 import Navbar from "./components/Navbar";
 import RecipeModal from "./components/RecipeModal";
 import {
+  Button,
   Grid,
   Container,
   ThemeProvider,
   Box,
   CssBaseline,
+  CircularProgress,
 } from "@mui/material";
 import theme from "./theme";
 
@@ -22,67 +24,47 @@ const App = () => {
   const [showRecipeModal, setShowRecipeModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [currentRecipe, setCurrentRecipe] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [cancelTokenSource, setCancelTokenSource] = useState(
-    axios.CancelToken.source()
-  ); // Add this line
   const [page, setPage] = useState(1);
-  const bottomBoundaryRef = useRef(null);
-  const limit = 100;
+  const [isEndOfRecipes, setIsEndOfRecipes] = useState(false); // New state
+  const limit = 50;
+  const [isLoading, setIsLoading] = useState(false); // new state for loading
+  const searchTimeoutRef = useRef(); // ref to hold timeout
 
   useEffect(() => {
     const fetchRecipes = async () => {
-      setLoading(true);
       try {
-        // Cancel the previous request
-        cancelTokenSource.cancel();
-        // Create a new CancelToken
-        const newCancelTokenSource = axios.CancelToken.source();
-        setCancelTokenSource(newCancelTokenSource);
-
+        setIsLoading(true); // start loading
         const response = await axios.get(
           `${process.env.REACT_APP_SERVER_URL}/recipes?skip=${
             (page - 1) * limit
-          }&limit=${limit}&search=${filter}`,
-          { cancelToken: newCancelTokenSource.token }
+          }&limit=${limit}&search=${filter}`
         );
-
-        setRecipes((prevRecipes) => [...prevRecipes, ...response.data]);
-        setLoading(false);
-      } catch (error) {
-        if (axios.isCancel(error)) {
-          console.log("Request cancelled");
-        } else {
-          console.error("Error fetching recipes:", error);
-          setLoading(false);
+        // Check if the number of returned recipes is less than the limit
+        if (response.data.length < limit) {
+          setIsEndOfRecipes(true);
         }
+        // Only append the new recipes if we're past the first page
+        if (page > 1) {
+          setRecipes((prev) => [...prev, ...response.data]);
+        } else {
+          setRecipes(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching recipes:", error);
+      } finally {
+        setIsLoading(false); // stop loading when done
       }
     };
     fetchRecipes();
   }, [page, filter]);
 
-  useEffect(() => {
-    const currentBoundaryRef = bottomBoundaryRef.current;
+  const loadMore = () => {
+    setPage((prev) => prev + 1);
+  };
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setPage((prevPage) => prevPage + 1);
-        }
-      },
-      { threshold: 1.0 }
-    );
-
-    if (currentBoundaryRef) {
-      observer.observe(currentBoundaryRef);
-    }
-
-    return () => {
-      if (currentBoundaryRef) {
-        observer.unobserve(currentBoundaryRef);
-      }
-    };
-  }, []);
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const handleAddRecipe = async (newRecipe) => {
     const formData = new FormData();
@@ -134,25 +116,40 @@ const App = () => {
       await axios.delete(
         `${process.env.REACT_APP_SERVER_URL}/recipes/${currentRecipe._id}`
       );
-      // Remove the recipe from state
       setRecipes((prevRecipes) =>
         prevRecipes.filter((recipe) => recipe._id !== currentRecipe._id)
       );
-      // Reset the page number to 1
-      setPage(1); 
-      // Clear the recipes state
-      setRecipes([]); 
       setShowRecipeModal(false);
     } catch (error) {
       console.error("Error deleting recipe:", error);
     }
   };
-  
 
-  const handleSearch = (searchText) => {
-    setFilter(searchText);
-    setPage(1); // Reset the page number when a new search query is entered.
-    setRecipes([]); // Clear the recipes when a new search query is entered.
+  const handleSearch = async (searchText) => {
+    clearTimeout(searchTimeoutRef.current); // clear previous timeout if there is one
+    setIsLoading(true); // start loading
+
+    searchTimeoutRef.current = setTimeout(async () => {
+      setFilter(searchText);
+      setPage(1); // Reset to page 1 when a new search is made
+
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_SERVER_URL}/recipes?skip=0&limit=${limit}&search=${searchText}`
+        );
+        // Check if the number of returned recipes is less than the limit
+        if (response.data.length < limit) {
+          setIsEndOfRecipes(true);
+        } else {
+          setIsEndOfRecipes(false);
+        }
+        setRecipes(response.data);
+      } catch (error) {
+        console.error("Error fetching recipes:", error);
+      } finally {
+        setIsLoading(false); // stop loading when done
+      }
+    }, 1250); // 2 second delay
   };
 
   // const filteredRecipes = recipes.filter((recipe) =>
@@ -205,8 +202,23 @@ const App = () => {
               />
             </Grid>
           ))}
-          <div id="page-bottom-boundary" ref={bottomBoundaryRef}></div>
         </Grid>
+        <Box display="flex" flexDirection="column" alignItems="center" mt={3}>
+          {isLoading ? ( // if loading, show spinner
+            <CircularProgress />
+          ) : !isEndOfRecipes ? (
+            <Button variant="outlined" onClick={loadMore}>
+              Load More
+            </Button>
+          ) : (
+            <>
+              <p>That's all the recipes! add more If you'd like.</p>
+              <Button variant="outlined" onClick={scrollToTop} sx={{ mt: 2 }}>
+                Back to top
+              </Button>
+            </>
+          )}
+        </Box>
       </Container>
     </ThemeProvider>
   );
