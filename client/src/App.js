@@ -25,15 +25,15 @@ const App = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [currentRecipe, setCurrentRecipe] = useState(null);
   const [page, setPage] = useState(1);
-  const [isEndOfRecipes, setIsEndOfRecipes] = useState(false); // New state
+  const [isEndOfRecipes, setIsEndOfRecipes] = useState(false);
   const limit = 50;
-  const [isLoading, setIsLoading] = useState(false); // new state for loading
-  const searchTimeoutRef = useRef(); // ref to hold timeout
+  const [isLoading, setIsLoading] = useState(false);
+  const searchTimeoutRef = useRef();
 
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        setIsLoading(true); // start loading
+        setIsLoading(true);
         const response = await axios.get(
           `${process.env.REACT_APP_SERVER_URL}/recipes?skip=${
             (page - 1) * limit
@@ -43,7 +43,7 @@ const App = () => {
         if (response.data.length < limit) {
           setIsEndOfRecipes(true);
         }
-        // Only append the new recipes if we're past the first page
+
         if (page > 1) {
           setRecipes((prev) => [...prev, ...response.data]);
         } else {
@@ -52,7 +52,7 @@ const App = () => {
       } catch (error) {
         console.error("Error fetching recipes:", error);
       } finally {
-        setIsLoading(false); // stop loading when done
+        setIsLoading(false);
       }
     };
     fetchRecipes();
@@ -126,18 +126,18 @@ const App = () => {
   };
 
   const handleSearch = async (searchText) => {
-    clearTimeout(searchTimeoutRef.current); // clear previous timeout if there is one
-    setIsLoading(true); // start loading
+    clearTimeout(searchTimeoutRef.current);
+    setIsLoading(true);
 
     searchTimeoutRef.current = setTimeout(async () => {
       setFilter(searchText);
-      setPage(1); // Reset to page 1 when a new search is made
+      setPage(1);
 
       try {
         const response = await axios.get(
           `${process.env.REACT_APP_SERVER_URL}/recipes?skip=0&limit=${limit}&search=${searchText}`
         );
-        // Check if the number of returned recipes is less than the limit
+
         if (response.data.length < limit) {
           setIsEndOfRecipes(true);
         } else {
@@ -147,14 +147,10 @@ const App = () => {
       } catch (error) {
         console.error("Error fetching recipes:", error);
       } finally {
-        setIsLoading(false); // stop loading when done
+        setIsLoading(false);
       }
-    }, 1250); // 2 second delay
+    }, 1250);
   };
-
-  // const filteredRecipes = recipes.filter((recipe) =>
-  //   recipe.recipeName.toLowerCase().includes(filter.toLowerCase())
-  // );
 
   return (
     <ThemeProvider theme={theme}>

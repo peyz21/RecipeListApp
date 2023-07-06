@@ -10,7 +10,7 @@ import {
   Typography,
   IconButton,
 } from "@mui/material";
-import CloseIcon from '@mui/icons-material/Close';
+import CloseIcon from "@mui/icons-material/Close";
 
 const EditRecipeModal = ({ open, handleClose, recipe, handleUpdate }) => {
   const [recipeName, setRecipeName] = useState("");
@@ -18,7 +18,7 @@ const EditRecipeModal = ({ open, handleClose, recipe, handleUpdate }) => {
   const [instructions, setInstructions] = useState("");
   const [difficulty, setDifficulty] = useState("Easy");
   const [recipeImage, setRecipeImage] = useState("");
-  const [fileInputState, setFileInputState] = useState('');
+  const [fileInputState, setFileInputState] = useState("");
 
   useEffect(() => {
     if (recipe) {
@@ -40,17 +40,22 @@ const EditRecipeModal = ({ open, handleClose, recipe, handleUpdate }) => {
     e.preventDefault();
 
     const formData = new FormData();
-    formData.append('recipeName', recipeName);
-    formData.append('ingredients', ingredients.split(',').map(ingredient => ingredient.trim()).join(','));
-    formData.append('instructions', instructions);
-    formData.append('difficulty', difficulty);
+    formData.append("recipeName", recipeName);
+    formData.append(
+      "ingredients",
+      ingredients
+        .split(",")
+        .map((ingredient) => ingredient.trim())
+        .join(",")
+    );
+    formData.append("instructions", instructions);
+    formData.append("difficulty", difficulty);
     if (fileInputState) {
-      formData.append('recipeImage', fileInputState);
+      formData.append("recipeImage", fileInputState);
     } else {
-      formData.append('recipeImage', recipe.recipeImage);
+      formData.append("recipeImage", recipe.recipeImage);
     }
-    
-    
+
     handleUpdate(formData);
     handleClose();
   };
@@ -141,6 +146,7 @@ const EditRecipeModal = ({ open, handleClose, recipe, handleUpdate }) => {
           <TextField
             style={{ marginTop: "20px", width: "80%" }}
             label="Ingredients"
+            multiline
             value={ingredients}
             onChange={(e) => setIngredients(e.target.value)}
           />

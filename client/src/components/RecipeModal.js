@@ -15,6 +15,23 @@ const RecipeModal = ({
   handleEdit,
   handleDelete,
 }) => {
+  let latestTimestamp = Math.max(
+    new Date(recipe.createdAt).getTime(),
+    new Date(recipe.updatedAt).getTime()
+  );
+  let dateOptions = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+  };
+  let formattedTimestamp = new Date(latestTimestamp).toLocaleString(
+    "en-US",
+    dateOptions
+  );
+
   return (
     <Modal open={open} onClose={handleClose}>
       <div
@@ -60,7 +77,7 @@ const RecipeModal = ({
             variant="caption"
             style={{ color: "#DDDDDD", marginBottom: "20px" }}
           >
-            Last Modified: {new Date(recipe.lastModified).toLocaleString()}
+            Last Modified: {formattedTimestamp}
           </Typography>
           <CardMedia
             component="img"
@@ -78,14 +95,51 @@ const RecipeModal = ({
             variant="body1"
             style={{ color: "#DDDDDD", marginTop: "20px" }}
           >
-            Ingredients: {recipe.ingredients.join(", ")}
+            Ingredients:
           </Typography>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              marginBottom: "20px",
+            }}
+          >
+            {Array.isArray(recipe.ingredients)
+              ? recipe.ingredients[0]
+                  .split("\r\n")
+                  .filter((item) => item.trim() !== "")
+                  .map((ingredient, index) => (
+                    <div key={index}>{`${index + 1} - ${ingredient}`}</div>
+                  ))
+              : recipe.ingredients}
+          </div>
+
           <Typography
             variant="body1"
             style={{ color: "#DDDDDD", marginTop: "20px" }}
           >
-            Instructions: {recipe.instructions}
+            Instructions:
           </Typography>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              marginBottom: "20px",
+            }}
+          >
+            {Array.isArray(recipe.instructions)
+              ? recipe.instructions
+                  .filter((instruction) => instruction.trim() !== "")
+                  .map((instruction, index) => (
+                    <div key={index}>{`${index + 1} - ${instruction}`}</div>
+                  ))
+              : recipe.instructions
+                  .split("\n")
+                  .filter((item) => item.trim() !== "")
+                  .map((item, i) => <div key={i}>{`${i + 1} - ${item}`}</div>)}
+          </div>
         </div>
 
         <Stack direction="row" spacing={2} marginTop={2}>

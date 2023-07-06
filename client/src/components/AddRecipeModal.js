@@ -18,6 +18,7 @@ const AddRecipeModal = ({ handleCloseModal, handleAddRecipe }) => {
   const [instructions, setInstructions] = useState("");
   const [difficulty, setDifficulty] = useState("Easy");
   const [recipeImage, setRecipeImage] = useState(null);
+  const [error, setError] = useState("");
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -26,6 +27,11 @@ const AddRecipeModal = ({ handleCloseModal, handleAddRecipe }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!recipeName || !ingredients || !instructions || !recipeImage) {
+      setError("Please fill in all fields.");
+      return;
+    }
 
     const newRecipe = {
       recipeName,
@@ -45,6 +51,7 @@ const AddRecipeModal = ({ handleCloseModal, handleAddRecipe }) => {
     setInstructions("");
     setDifficulty("Easy");
     setRecipeImage(null);
+    setError("");
   };
 
   return (
@@ -133,6 +140,7 @@ const AddRecipeModal = ({ handleCloseModal, handleAddRecipe }) => {
           <TextField
             style={{ marginTop: "20px", width: "80%" }}
             label="Ingredients"
+            multiline
             value={ingredients}
             onChange={(e) => setIngredients(e.target.value)}
           />
@@ -143,6 +151,19 @@ const AddRecipeModal = ({ handleCloseModal, handleAddRecipe }) => {
             value={instructions}
             onChange={(e) => setInstructions(e.target.value)}
           />
+          {error && (
+            <Typography
+              variant="body1"
+              style={{
+                color: "pink",
+                fontWeight: "bold",
+                animation: "blink 1s infinite",
+              }}
+            >
+              {error}
+            </Typography>
+          )}
+
           <Button
             style={{ marginTop: "20px" }}
             variant="contained"

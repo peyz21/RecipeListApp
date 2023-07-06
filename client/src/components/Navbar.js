@@ -1,6 +1,5 @@
-// Navbar.js
-import React from 'react';
-import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
+import React from "react";
+import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
 
 const Navbar = ({ handleOpenModal }) => {
   return (
@@ -14,15 +13,15 @@ const Navbar = ({ handleOpenModal }) => {
             color="inherit"
             onClick={handleOpenModal}
             sx={{
-              backgroundColor: '#4D85D1', // Change to lighter blue color
-              marginLeft: '20px',
-              borderRadius: '5px',
-              padding: '10px 20px',
-              '&:hover': {
-                backgroundColor: '#3A6FAE', // Change hover color
+              backgroundColor: "#4D85D1",
+              marginLeft: "20px",
+              borderRadius: "5px",
+              padding: "10px 20px",
+              "&:hover": {
+                backgroundColor: "#3A6FAE",
               },
-              fontWeight: 'bold',
-              color: '#FFFFFF',
+              fontWeight: "bold",
+              color: "#FFFFFF",
             }}
           >
             Add Recipe

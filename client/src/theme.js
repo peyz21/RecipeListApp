@@ -1,24 +1,37 @@
-// theme.js
+
 import { createTheme } from "@mui/material";
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#90caf9',
+      main: '#000000',  
     },
     secondary: {
-      main: '#f48fb1',
+      main: '#e91e63',  
     },
     background: {
-        default: '#424242',
-      paper: '#424242',
+      default: '#979797', 
+      paper: '#9a8ab7',  
     },
     text: {
-      primary: '#ffffff',
-      secondary: '#ffffff',
+      primary: '#00000', 
+      secondary: '#00000',  
     },
   },
   spacing: 4,
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: `
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active  {
+          transition: background-color 5000s ease-in-out 0s;
+          -webkit-text-fill-color: #212121 !important;
+        }
+      `
+    }
+  }
 });
 
 export default theme;

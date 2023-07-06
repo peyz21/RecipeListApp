@@ -1,4 +1,3 @@
-// RecipeCard.js
 import React from "react";
 import { CardMedia, CardContent, Typography, Button } from "@mui/material";
 import { styled } from "@mui/system";
@@ -28,7 +27,7 @@ const RecipeCard = ({ recipe, onClick }) => {
         alt={recipe.recipeName}
       />
 
-      <CardContent>
+      <CardContent style={{ backgroundColor: "#686868" }}>
         <Typography variant="h5">{recipe.recipeName}</Typography>
       </CardContent>
       <Button
@@ -36,7 +35,7 @@ const RecipeCard = ({ recipe, onClick }) => {
         style={{
           width: "100%",
           borderRadius: "0px",
-          backgroundColor: "#757575",
+          backgroundColor: "#282828",
           color: "#ffffff",
         }}
       >
