@@ -39,7 +39,7 @@ const App = () => {
             (page - 1) * limit
           }&limit=${limit}&search=${filter}`
         );
-        // Check if the number of returned recipes is less than the limit
+        
         if (response.data.length < limit) {
           setIsEndOfRecipes(true);
         }
@@ -200,7 +200,7 @@ const App = () => {
           ))}
         </Grid>
         <Box display="flex" flexDirection="column" alignItems="center" mt={3}>
-          {isLoading ? ( // if loading, show spinner
+          {isLoading ? ( 
             <CircularProgress />
           ) : !isEndOfRecipes ? (
             <Button variant="outlined" onClick={loadMore}>

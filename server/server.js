@@ -9,7 +9,7 @@ const app = express();
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-app.use(cors()); // Enable CORS
+app.use(cors()); 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -28,7 +28,7 @@ const connectDB = async () => {
   }
 };
 
-connectDB(); // Connect to MongoDB
+connectDB(); 
 
 const recipeSchema = new mongoose.Schema(
   {
@@ -101,7 +101,7 @@ app.put("/recipes/:id", upload.single("recipeImage"), async (req, res) => {
   try {
     let updatedData = req.body;
 
-    // If a new image file is uploaded, handle the upload process
+    
     if (req.file) {
       const image = Buffer.from(req.file.buffer).toString("base64");
       updatedData.recipeImage = image;
