@@ -16,7 +16,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const connectDB = async () => {
   try {
     await mongoose.connect(
-      "mongodb+srv://peyz21:qwert12345@recipedb.1yr5yi7.mongodb.net/recipedb?retryWrites=true&w=majority",
+      process.env.MONGO_URI,
       {
         useNewUrlParser: true,
         useUnifiedTopology: true,
@@ -27,6 +27,7 @@ const connectDB = async () => {
     console.log("Could not connect to MongoDB...", error);
   }
 };
+
 
 connectDB(); 
 
@@ -138,7 +139,7 @@ app.delete("/recipes/:id", async (req, res) => {
     res.status(500).send({ message: error.message });
   }
 });
-const port = process.env.PORT || 3002;
+const port = process.env.PORT || 5000;
 app.listen(port, () => {
-  console.log("Server is running on port 3002");
+  console.log("Server is running on port 5000");
 });
